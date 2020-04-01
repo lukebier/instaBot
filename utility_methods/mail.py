@@ -4,7 +4,7 @@ from email.message import EmailMessage
 
 def main(var):
     """
-    Function used to send a notification Email when the quitter() has been activiated. 
+    Function used to send a notification Email when the starter() or quitter() have been activiated. 
     """
 
     senderMail = "sender@mail.de"
