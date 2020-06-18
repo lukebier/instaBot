@@ -1,9 +1,15 @@
+#!/usr/bin/env python3
+
 import os
 import time
 import urllib.request
+import utility_methods.mail
+
+from pyvirtualdisplay import Display
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.firefox.options import Options
@@ -12,7 +18,6 @@ from utility_methods.utility_methods import insta_method
 from utility_methods.utility_methods import init_config
 from utility_methods.utility_methods import get_logger
 from utility_methods.utility_methods import exception
-import utility_methods.mail
 
 
 
@@ -29,7 +34,6 @@ class InstaBot:
 
         Attributes:
             driver:Selenium.webdriver.Firefox: Geckodriver that is used to automate browser actions.
-
         """
         
         self.username = config['IG_AUTH']['USERNAME']
@@ -46,7 +50,6 @@ class InstaBot:
         self.options.height = 1050
         self.driver = webdriver.Firefox(options=self.options)
         print("Headless Firefox Initialized")
-     
         self.logged_in = False
 
 
@@ -275,7 +278,7 @@ class InstaBot:
 
         self.search_tagged_pictures(user)
 
-        searchtag = f"#{user}"
+        searchtag = "#{}".format(user)
 
         try:
             self.driver.find_element_by_xpath("//*[@aria-label='„Aktivitäten“-Meldungen']").click()
@@ -315,8 +318,11 @@ class InstaBot:
                         break
 
             except NoSuchElementException: 
-                WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//*[@aria-label='Gefällt mir']"))).click()
-                count += 1
+                try:
+                    WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//*[@aria-label='Gefällt mir']"))).click()
+                    count += 1
+                except Exception as e:
+                    print(e)
                 
             self.driver.find_element_by_xpath("//*[@aria-label='Schließen']").click()
             if count == 10:
@@ -357,7 +363,7 @@ class InstaBot:
             if hashtagtime - time.time() < 0:
                 for search_hashtag in search_hashtags:
                     self.like_latest_hashtags(search_hashtag)
-                    print("The most recent posts with",f"#{search_hashtag}","have been liked.")
+                    print("The most recent posts with {} have been liked.".format(search_hashtag))
                     if self.likecounter == 0:
                         hashtagdrop +=1
                     else:
@@ -375,7 +381,7 @@ class InstaBot:
             if usertagtime - time.time() < 0:
                 for user in users:
                     self.like_latest_usertags(user)
-                    print("The most recent posts with tags of",f"@{user}","have been liked.")
+                    print("The most recent posts with tags of {} have been liked.".format(user))
                     if self.count == 0:
                         usertagdrop +=1
                     else:
@@ -394,8 +400,8 @@ class InstaBot:
 
 if __name__ == '__main__':
     
-    config_file_path = './config.ini'
-    logger_file_path = './bot.log'
+    config_file_path = '/usr/bin/instaBot/config.ini'
+    logger_file_path = '/usr/bin/instaBot/bot.log'
     config = init_config(config_file_path)
     logger = get_logger(logger_file_path)
     
@@ -405,6 +411,6 @@ if __name__ == '__main__':
 
     bot.login()
 
-    bot.shababslikebotten(600, ['hashtag1', 'hashtag2', 'hashtag3'], ['user1', 'user2'])
+    bot.shababslikebotten(1200, ['hashtag1', 'hashtag2', 'hashtag3'], ['user1', 'user2'])
 
     bot.quitter()
